@@ -1,0 +1,17 @@
+[Unit]
+Description=Cosmos Gaia Node
+After=network.target
+
+[Service]
+Type=simple
+User={{ username }}
+WorkingDirectory=/home/{{ username }}
+ExecStart=/home/{{ username }}/go/bin/gaiad start {{ chainid }}
+Restart=always
+RestartSec=3
+LimitNOFILE=4096
+SyslogIdentifier={{ servicename }}
+
+[Install]
+WantedBy=multi-user.target
+

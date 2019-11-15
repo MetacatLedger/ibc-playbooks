@@ -1,0 +1,128 @@
+#- name: "Add user"
+#  user:
+#    name: "{{ username  }}"
+#    shell: /bin/bash
+#
+#- name: Update .profile
+#  blockinfile:
+#    path: /home/{{ username  }}/.profile
+#    owner: "{{ username  }}"
+#    group: "{{ username  }}"
+#    create: yes
+#    mode: "644"
+#    block: |
+#      GOPATH="$HOME/go"
+#      PATH="$GOPATH/bin:$PATH"
+#      PATH="$PATH:/usr/local/go/bin"
+#
+#- name: Get files from github
+#  git:
+#    repo: "https://github.com/{{ repository}}"
+#    dest: "/home/{{ username  }}/go/src/github.com/{{ repository }}"
+#    version: "{{ branch }}"
+#    force: yes
+#  become: yes
+#  become_user: "{{ username  }}"
+#
+#- name: Create GOBIN directory if it does not exist
+#  file:
+#    path: "/home/{{ username  }}/go/bin"
+#    owner: "{{ username  }}"
+#    group: "{{ username  }}"
+#    state: directory
+#    mode: '0775'
+#
+#- name: Install dep
+#  shell: "source /home/{{ username  }}/.profile && curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh"
+#  args:
+#    creates: "/home/{{ username  }}/go/bin/dep"
+#    executable: /bin/bash
+#    chdir: "/home/{{ username  }}/"
+#    warn: no
+#  become: yes
+#  become_user: "{{ username  }}"
+
+- name: Populate service facts
+  service_facts:
+
+- name: stop service
+  systemd:
+    name: "{{ servicename }}"
+    state: stopped
+  when: 'servicename in ansible_facts.services'
+
+#- name: Clean .gaiad
+#  file:
+#    state: absent
+#    path: "/home/{{ username  }}/.gaiad"
+#
+#- name: Clean .gaiad
+#  file:
+#    state: absent
+#    path: "/home/{{ username  }}/.gaiacli"
+#
+#- name: Make Cosmos
+#  shell: "source /home/{{ username  }}/.profile && make install"
+#  args:
+#    executable: /bin/bash
+#    chdir: "/home/{{ username  }}/go/src/github.com/{{ repository }}"
+#    warn: no
+#  become: yes
+#  become_user: "{{ username  }}"
+#
+#- name: Init chain
+#  shell: "source /home/{{ username  }}/.profile && \
+#              gaiad init {{ moniker }} --chain-id {{ chainid }} && \
+#              gaiacli keys test validator-key 'evolve bring grid unit blood razor return salt juice tenant theme mandate blade mercy submit public crowd act rather feature clutch report remain bag' 12345678 && \
+#              gaiacli keys test faucet 'wrap season pave action reward effort already play grunt fiction wife alter sentence oppose half film broccoli tiny inmate keep indicate mimic fault brass' 12345678 && \
+#              gaiad add-genesis-account validator-key 100000000stake,100000000validatortoken && \
+#              gaiad add-genesis-account faucet 100000000stake,100000000faucettoken && \
+#              echo -e '12345678\n' | gaiad gentx --name validator-key && \
+#              gaiad collect-gentxs && \
+#              gaiacli config output json"
+#  args:
+#    creates: "/home/{{ username  }}/.gaiad/config/genesis.json"
+#    executable: /bin/bash
+#    chdir: "/home/{{ username  }}/"
+#    warn: no
+#  become: yes
+#  become_user: "{{ username  }}"
+#
+#- name: copy config
+#  template:
+#    src: "files/config.toml"
+#    dest: "/home/{{ username  }}/.gaiad/config/config.toml"
+#    owner: "{{ username  }}"
+#    group: "{{ username  }}"
+#    mode: '0644'
+#
+#- name: Create Systemd file
+#  template:
+#    src: "files/gaiad.service"
+#    dest: "/etc/systemd/system/{{ servicename }}"
+#    owner: root
+#    group: root
+#    mode: '0644'
+
+- name: enable and start service!
+  systemd:
+    name: "{{ servicename }}"
+    state: started
+    enabled: yes
+  when: servicename in ansible_facts.services
+#
+#- name: copy scripts
+#  copy:
+#    src: "files/connect.sh"
+#    dest: "/home/{{ username  }}/connect.sh"
+#    owner: "{{ username  }}"
+#    group: "{{ username  }}"
+#    mode: '0755'
+#
+#- name: copy scripts
+#  copy:
+#    src: "files/xfer.sh"
+#    dest: "/home/{{ username  }}/xfer.sh"
+#    owner: "{{ username  }}"
+#    group: "{{ username  }}"
+#    mode: '0755'

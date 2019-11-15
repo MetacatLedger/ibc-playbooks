@@ -1,0 +1,54 @@
+- name: disable auto upgrades
+  lineinfile:
+    path: /etc/apt/apt.conf.d/20auto-upgrades
+    regexp: '^APT::Periodic::Unattended-Upgrade'
+    line: APT::Periodic::Unattended-Upgrade "0";
+
+- name: Install packages
+  apt:
+    name: ['vim', 'python', 'liblz4-tool', 'make', 'gcc', 'libhidapi-dev', 'g++', 'ntp', 'jq']
+    update_cache: yes
+
+- name: Run timedatectl status
+  command: /usr/bin/timedatectl status
+  changed_when: False
+  check_mode: no
+  register: timedatectl_result
+
+- name: Set timezone
+  command: /usr/bin/timedatectl set-timezone Europe/Amsterdam
+  when: "'Europe/Amsterdam' not in timedatectl_result.stdout"
+
+- name: Disable ntp
+  command: /usr/bin/timedatectl set-ntp false
+  when: "'Network time on: yes' in timedatectl_result.stdout"
+
+- name: Run ntp
+  command: /usr/bin/ntpq -p
+  become: yes
+
+- name: Update limits.conf
+  blockinfile:
+    path: /etc/security/limits.conf
+    block: |
+      * soft     nproc          65535
+      * hard     nproc          65535
+      * soft     nofile         65535
+      * hard     nofile         65535
+      root soft     nproc          65535
+      root hard     nproc          65535
+      root soft     nofile         65535
+      root hard     nofile         65535
+
+- name: Update common-session
+  blockinfile:
+    path: /etc/pam.d/common-session
+    block: |
+      session required pam_limits.so
+
+- name: Update sysctl.conf
+  blockinfile:
+    path: /etc/sysctl.conf
+    block: |
+      fs.file-max = 65535
+

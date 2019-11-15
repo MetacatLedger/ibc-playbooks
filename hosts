@@ -1,0 +1,11 @@
+all:
+  children:
+    ibc-test:
+      hosts:
+        ibc-test1:
+          repository: cosmos/gaia
+          branch: fedekunze/ibc
+          moniker: ChainLayer
+          ansible_port: 22
+          ansible_host: 192.168.2.32
+          ansible_user: root

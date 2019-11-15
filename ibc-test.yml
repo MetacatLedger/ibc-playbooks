@@ -1,0 +1,7 @@
+---
+- hosts: ibc-test
+  roles:
+#    - { role: base, become: yes }
+#    - { role: andrewrothstein.go, become: yes }
+    - { role: ibc, become: yes, vars: { username: "ibc1", servicename: "gaiad1.service", servicenameshort: "gaiad1", chainid: "chainl1", proxyport: "26658", rpcport: "26657", p2pport: "26656", profport: "6060" }}
+    - { role: ibc, become: yes, vars: { username: "ibc2", servicename: "gaiad2.service", servicenameshort: "gaiad2", chainid: "chainl2", proxyport: "16658", rpcport: "16657", p2pport: "16656", profport: "6061" }}
